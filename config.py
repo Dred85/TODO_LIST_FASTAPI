@@ -15,11 +15,11 @@ class Model(DeclarativeBase):
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+# DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL="postgresql+asyncpg://postgres:qwertyuiop123#@localhost/todo_fastapi"
 
 # Создаем асинхронный движок
 async_engine = create_async_engine(DATABASE_URL, echo=True)
-async_session = sessionmaker(async_engine, class_=AsyncSession, expire_on_commit=False)
 
 # Используем базу данных через библиотеку databases
 database = Database(DATABASE_URL)
