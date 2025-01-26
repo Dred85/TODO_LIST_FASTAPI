@@ -3,9 +3,11 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql import func
 import enum
 
+
 # Base = declarative_base()
 class Base(DeclarativeBase):
     pass
+
 
 class TaskStatus(str, enum.Enum):
     pending = "pending"

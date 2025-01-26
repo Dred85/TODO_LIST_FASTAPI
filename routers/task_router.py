@@ -6,9 +6,11 @@ from db.database import get_db
 
 router = APIRouter()
 
+
 @router.post("/tasks/", response_model=TaskInDB)
 async def create_task_endpoint(task: TaskCreate, db: AsyncSession = Depends(get_db)):
     return await create_task(db, task)
+
 
 @router.get("/tasks/{task_id}", response_model=TaskInDB)
 async def get_task_endpoint(task_id: int, db: AsyncSession = Depends(get_db)):
@@ -17,9 +19,11 @@ async def get_task_endpoint(task_id: int, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Task not found")
     return task
 
+
 @router.get("/tasks/", response_model=list[TaskInDB])
 async def get_tasks_endpoint(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db)):
     return await get_tasks(db, skip, limit)
+
 
 @router.put("/tasks/{task_id}", response_model=TaskInDB)
 async def update_task_endpoint(task_id: int, task: TaskUpdate, db: AsyncSession = Depends(get_db)):
@@ -28,12 +32,6 @@ async def update_task_endpoint(task_id: int, task: TaskUpdate, db: AsyncSession 
         raise HTTPException(status_code=404, detail="Task not found")
     return updated_task
 
-# @router.patch("/tasks/{task_id}", response_model=TaskInDB)
-# async def update_task_endpoint(task_id: int, task: TaskUpdate, db: AsyncSession = Depends(get_db)):
-#     task = await patch_task(db, task_id, task)
-#     if task is None:
-#         raise HTTPException(status_code=404, detail="Task not found")
-#     return task
 
 @router.patch("/tasks/{task_id}", response_model=TaskInDB)
 async def update_task_route(task_id: int, task_update: TaskUpdate, db: AsyncSession = Depends(get_db)):
@@ -41,7 +39,6 @@ async def update_task_route(task_id: int, task_update: TaskUpdate, db: AsyncSess
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
-
 
 
 @router.delete("/tasks/{task_id}", response_model=bool)
