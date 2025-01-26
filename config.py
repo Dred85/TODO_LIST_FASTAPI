@@ -2,18 +2,20 @@ from databases import Database
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
+
 import os
-from os.path import join, dirname
+from pathlib import Path
 from dotenv import load_dotenv
+
 
 class Model(DeclarativeBase):
     pass
 
 
-dotenv_path = join(dirname(__file__), '.env')
-load_dotenv(dotenv_path)
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
 
-DATABASE_URL = os.environ.get('DATABASE_URL')
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Создаем асинхронный движок
 async_engine = create_async_engine(DATABASE_URL, echo=True)
