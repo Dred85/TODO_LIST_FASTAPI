@@ -16,6 +16,7 @@ class TaskBase(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     status: Optional[str] = None
+    nice: Optional[str] = None
 
 
 class TaskCreate(TaskBase):
