@@ -41,17 +41,20 @@ def verify_jwt_token(credentials: HTTPAuthorizationCredentials = Depends(securit
 
 @app.post("/token")
 def login(username: str, password: str):
-    # В реальном приложении здесь проверяются логин и пароль
+    # Проверяем логин и пароль
     if username == "dred" and password == "password":
         token = jwt.encode({"user_id": 1}, SECRET_KEY, algorithm="HS256")
-        return {"access_token": token, "token_type": "bearer"}
+        return {"Ваш токен access_token": token, "token_type": "bearer"}
     raise HTTPException(status_code=400, detail="Invalid credentials")
 
 @app.get("/protected")
 def protected_route(user_id: int = Depends(verify_jwt_token)):
     return {"message": f"Hello, user {user_id}"}
 
-
+@app.get("/about_me")
+def get_about_protected(user: int = Depends(verify_jwt_token)):
+    """Общая информация о разрабе приложения"""
+    return {"message": "разработчик приложения DRED"}
 
 
 class LogMiddleware(BaseHTTPMiddleware):
