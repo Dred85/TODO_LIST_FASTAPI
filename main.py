@@ -67,18 +67,6 @@ class LogMiddleware(BaseHTTPMiddleware):
         print(f"Response: {response.status_code}")
         return response
 
-
-# # Создаем обработчик жизненного цикла приложения
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     async with async_engine.begin() as conn:
-#         await conn.run_sync(Base.metadata.create_all)  # Создаем таблицы в базе данных
-#     yield  # Приложение запускается после выполнения этого блока
-#
-#
-# # Создаем FastAPI-приложение с переданным lifespan
-# app = FastAPI(lifespan=lifespan)
-
 # Подключаем маршруты
 app.include_router(task_router.router)
 
