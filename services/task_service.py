@@ -1,8 +1,19 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
+from fastapi import UploadFile
+
 from db.models import Task
 from schemas.task_schema import TaskCreate, TaskUpdate, TaskInDB
+
+
+async def load_file(upload_file: UploadFile):
+    file = upload_file.file
+    filename = upload_file.filename
+    with open(f"1_{filename}", "wb", ) as f:
+        f.write(file.read())
+    return {"message": "Загрузка завершина"}
+
 
 
 async def create_task(db: AsyncSession, task: TaskCreate) -> TaskInDB:

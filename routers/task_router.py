@@ -1,10 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from schemas.task_schema import TaskCreate, TaskUpdate, TaskInDB
-from services.task_service import create_task, get_task, get_tasks, update_task, delete_task, patch_task
+from services.task_service import create_task, get_task, get_tasks, update_task, delete_task, patch_task, load_file
 from db.database import get_db
 
 router = APIRouter()
+
+@router.post("/files/")
+async def upload_file(upload_file: UploadFile):
+    return await load_file(upload_file)
 
 
 @router.post("/tasks/", response_model=TaskInDB)
