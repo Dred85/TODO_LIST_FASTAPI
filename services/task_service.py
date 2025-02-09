@@ -8,6 +8,7 @@ from schemas.task_schema import TaskCreate, TaskUpdate, TaskInDB
 
 
 async def load_file(upload_file: UploadFile):
+    """Асинхронная функция, которая загружает файл"""
     file = upload_file.file
     filename = upload_file.filename
     with open(f"1_{filename}", "wb", ) as f:
@@ -15,6 +16,7 @@ async def load_file(upload_file: UploadFile):
     return {"message": "Загрузка завершена"}
 
 async def load_multiple_file(upload_files: list[UploadFile]):
+    """Асинхронная функция, которая загружает несколько файлов"""
     for upload_file in upload_files:
         file = upload_file.file
         filename = upload_file.filename
