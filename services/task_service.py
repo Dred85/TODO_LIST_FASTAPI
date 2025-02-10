@@ -5,6 +5,11 @@ from fastapi import UploadFile
 
 from db.models import Task
 from schemas.task_schema import TaskCreate, TaskUpdate, TaskInDB
+from fastapi.responses import StreamingResponse, FileResponse
+
+
+def get_file(filename: str):
+    return FileResponse(filename)
 
 
 async def load_file(upload_file: UploadFile):
