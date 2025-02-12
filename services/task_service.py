@@ -8,7 +8,8 @@ from schemas.task_schema import TaskCreate, TaskUpdate, TaskInDB
 from fastapi.responses import StreamingResponse, FileResponse
 
 
-def get_file(filename: str):
+def transfer_file(filename: str):
+    """Передает файлы"""
     return FileResponse(filename)
 
 
