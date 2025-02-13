@@ -21,7 +21,7 @@ async def upload_multiple_file_endpoint(upload_files: list[UploadFile]):
     return await load_multiple_file(upload_files)
 
 
-@router.post("/tasks/", response_model=TaskInDB)
+@router.post("/tasks/", response_model=TaskInDB, status_code=201)
 async def create_task_endpoint(task: TaskCreate, db: AsyncSession = Depends(get_db)):
     return await create_task(db, task)
 
