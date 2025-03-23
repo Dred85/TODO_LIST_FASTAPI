@@ -14,6 +14,11 @@ class TaskStatus(str, enum.Enum):
     in_progress = "in_progress"
     completed = "completed"
 
+class TaskImportance(str, enum.Enum):
+    important = "Важное"
+    very_important = "Очень важное"
+    not_important= "Не важное"
+
 
 class Task(Base):
     __tablename__ = "tasks"
@@ -21,6 +26,6 @@ class Task(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(nullable=False)
     description: Mapped[str] = mapped_column(nullable=False)
-    status: Mapped[TaskStatus] = mapped_column(Enum(TaskStatus), default=TaskStatus.pending, nullable=False)
-    nice: Mapped[str] = mapped_column(nullable=True)
+    status: Mapped[TaskStatus] = mapped_column(Enum(TaskStatus), default=TaskStatus.pending, nullable=True)
+    importance: Mapped[TaskImportance] = mapped_column(Enum(TaskImportance), default=TaskImportance.important, nullable=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), nullable=False)
