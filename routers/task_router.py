@@ -55,7 +55,7 @@ async def update_task_route(task_id: int, task_update: TaskUpdate, db: AsyncSess
     return task
 
 
-@router.delete("/tasks/{task_id}", response_model=bool)
+@router.delete("/tasks/{task_id}", response_model=str)
 async def delete_task_endpoint(task_id: int, db: AsyncSession = Depends(get_db)):
     success = await delete_task(db, task_id)
     if not success:

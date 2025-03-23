@@ -44,7 +44,7 @@ async def test_post_task():
                 "title": "Test",
                 "description": "Test",
                 "status": "pending",
-                "nice": "Test"
+                "importance": "importance"
             }
 
             response = await ac.post("/tasks/", json=json_data)
