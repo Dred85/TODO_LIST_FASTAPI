@@ -38,7 +38,7 @@ async def create_task(db: AsyncSession, task: TaskCreate) -> TaskInDB:
         title=task.title,
         description=task.description,
         status=task.status,
-        nice=task.status
+        importance=task.importance
     )
     db.add(db_task)
     await db.commit()
@@ -65,7 +65,7 @@ async def update_task(db: AsyncSession, task_id: int, task_update: TaskUpdate) -
         task.title = task_update.title
         task.description = task_update.description
         task.status = task_update.status
-        task.nice = task_update.nice
+        task.importance = task_update.importance
         await db.commit()
         await db.refresh(task)
         return task
@@ -83,8 +83,8 @@ async def patch_task(db: AsyncSession, task_id: int, task_update: TaskUpdate) ->
             task.description = task_update.description
         if task_update.status is not None:
             task.status = task_update.status
-        if task_update.nice is not None:
-            task.nice = task_update.nice
+        if task_update.importance is not None:
+            task.importance = task_update.importance
 
         await db.commit()
         await db.refresh(task)
@@ -92,11 +92,12 @@ async def patch_task(db: AsyncSession, task_id: int, task_update: TaskUpdate) ->
     return None
 
 
-async def delete_task(db: AsyncSession, task_id: int) -> bool:
+async def delete_task(db: AsyncSession, task_id: int) -> str:
+    """Удалить таску"""
     result = await db.execute(select(Task).filter(Task.id == task_id))
     task = result.scalars().first()
     if task:
         await db.delete(task)
         await db.commit()
-        return True
-    return False
+        return f"Таска удалена!"
+    return f"Произошла ошибка"
