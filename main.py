@@ -90,6 +90,11 @@ async def root(request: Request):
     """Отображаем главную страницу"""
     return templates.TemplateResponse(name='index.html', context={"request":request, 'date_time': date_time})
 
+@app.get("/todo")
+async def todo_page(request: Request):
+    """Переход на страницу добавления задач"""
+    return templates.TemplateResponse(name='todo.html', context={"request": request})
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)
