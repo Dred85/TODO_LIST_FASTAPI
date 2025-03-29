@@ -9,6 +9,7 @@
 <body class="bg-light">
 <div class="container text-center mt-5">
     <h1 class="mb-4">Добро пожаловать в ваш список задач!</h1>
+    <h1 class="mb-4">Всего задач {{ tasks_count }}</h1>
     <div id="todoCarousel" class="carousel slide mt-4" data-bs-ride="carousel">
         <div class="carousel-inner">
             <div class="carousel-item active">
@@ -93,7 +94,7 @@
 <ul id="taskList" class="list-group">
     {% for task in tasks %}
     <li class="list-group-item">
-        {{ task.title }} - {{ task.status }} - {{ task.importance }}
+        {{ task.title }} - {{ task.description }} - {{ task.status }} - {{ task.importance }} - {{ task.created_at }}
     </li>
     {% endfor %}
 </ul>

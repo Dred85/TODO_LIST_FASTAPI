@@ -2,17 +2,22 @@ import uvicorn
 from fastapi import FastAPI, Request, Depends, HTTPException
 from contextlib import asynccontextmanager
 
+from sqlalchemy import select, func
+
+from db.models import Task
 from httpx import request
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.testing import db, skip
 from starlette.templating import Jinja2Templates
 
-from db.database import async_engine
+from db.database import async_engine, get_db
 from db.models import Base
 from routers import task_router
 from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.security import HTTPBearer, OAuth2PasswordBearer, HTTPAuthorizationCredentials
 import jwt
 
-from services.task_service import get_date
+from services.task_service import get_date, get_tasks
 
 
 # Создаем обработчик жизненного цикла приложения
@@ -85,15 +90,29 @@ app.add_middleware(LogMiddleware)
 
 date_time = get_date()
 
+
 @app.get("/")
 async def root(request: Request):
     """Отображаем главную страницу"""
     return templates.TemplateResponse(name='index.html', context={"request":request, 'date_time': date_time})
 
+
 @app.get("/todo")
-async def todo_page(request: Request):
-    """Переход на страницу добавления задач"""
-    return templates.TemplateResponse(name='todo.html', context={"request": request})
+async def todo_page(request: Request, db: AsyncSession = Depends(get_db), skip: int = 0, limit: int = 100):
+    """Переход на страницу добавления задач и получение всех задач из БД"""
+
+    # Подсчитываем количество задач
+    result_count = await db.execute(select(func.count(Task.id)))
+    # tasks_count = result_count.all() # Получаем количество задач
+    # tasks_count = result_count.fetchone()[0]  # Получаем количество задач
+    # tasks_count = result_count.fetchall()[0][0]  # Получаем количество задач
+    tasks_count = result_count.scalar() # Получаем количество задач
+
+    # Получаем задачи с учётом пагинации
+    result_tasks = await db.execute(select(Task).offset(skip).limit(limit))
+    tasks = result_tasks.scalars().all()  # Получаем список задач
+
+    return templates.TemplateResponse('todo.html', {"request": request, "tasks": tasks, "tasks_count": tasks_count})
 
 
 if __name__ == "__main__":
