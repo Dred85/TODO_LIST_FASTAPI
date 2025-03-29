@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from fastapi import UploadFile
-
+import time
 from db.models import Task
 from schemas.task_schema import TaskCreate, TaskUpdate, TaskInDB
 from fastapi.responses import StreamingResponse, FileResponse
@@ -101,3 +101,8 @@ async def delete_task(db: AsyncSession, task_id: int) -> str:
         await db.commit()
         return f"Таска удалена!"
     return f"Произошла ошибка"
+
+def get_date():
+    """Возвращает текущую дату и время в формате YYYY-MM-DD HH:MM:SS"""
+    date_time = time.strftime("%d-%m-%Y %H:%M:%S", time.localtime())  # Получаем текущую дату и время в формате YYYY-MM-DD HH:MM:SS
+    return date_time

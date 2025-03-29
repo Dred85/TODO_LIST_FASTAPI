@@ -1,12 +1,18 @@
 import uvicorn
 from fastapi import FastAPI, Request, Depends, HTTPException
 from contextlib import asynccontextmanager
+
+from httpx import request
+from starlette.templating import Jinja2Templates
+
 from db.database import async_engine
 from db.models import Base
 from routers import task_router
 from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.security import HTTPBearer, OAuth2PasswordBearer, HTTPAuthorizationCredentials
 import jwt
+
+from services.task_service import get_date
 
 
 # Создаем обработчик жизненного цикла приложения
@@ -70,14 +76,19 @@ class LogMiddleware(BaseHTTPMiddleware):
 # Подключаем маршруты
 app.include_router(task_router.router)
 
+# Jinja2Templates позволяет использовать шаблоны во вьюхах FastAPI
+templates = Jinja2Templates(directory="Templates")  # Указываем где расположен шаблон
 
 # LogMiddleware логирует метод и URL каждого запроса, а также статус-код каждого ответа.
 # Middleware добавляется к приложению с помощью метода add_middleware
 app.add_middleware(LogMiddleware)
 
+date_time = get_date()
+
 @app.get("/")
-async def root():
-    return {"message": "Task Management API"}
+async def root(request: Request):
+    """Отображаем главную страницу"""
+    return templates.TemplateResponse(name='index.html', context={"request":request, 'date_time': date_time})
 
 
 if __name__ == "__main__":
