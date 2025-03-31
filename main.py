@@ -3,6 +3,7 @@ from fastapi import FastAPI, Request, Depends, HTTPException
 from contextlib import asynccontextmanager
 
 from sqlalchemy import select, func
+from starlette.responses import HTMLResponse, RedirectResponse
 
 from db.models import Task
 from httpx import request
@@ -17,7 +18,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.security import HTTPBearer, OAuth2PasswordBearer, HTTPAuthorizationCredentials
 import jwt
 
-from services.task_service import get_date, get_tasks
+from services.task_service import get_date, get_tasks, get_task
 
 
 # Создаем обработчик жизненного цикла приложения
@@ -31,11 +32,12 @@ async def lifespan(app: FastAPI):
 # Создаем FastAPI-приложение с переданным lifespan
 app = FastAPI(lifespan=lifespan)
 
-
 # Создаем объект схемы OAuth2 для получения токена
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 SECRET_KEY = "mysecretkey"
 security = HTTPBearer()
+
+
 # Верификация JWT токена
 def verify_jwt_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     token = credentials.credentials  # Получаем сам токен
@@ -50,6 +52,7 @@ def verify_jwt_token(credentials: HTTPAuthorizationCredentials = Depends(securit
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
+
 @app.post("/token")
 def login(username: str, password: str):
     # Проверяем логин и пароль
@@ -58,9 +61,11 @@ def login(username: str, password: str):
         return {"Ваш токен access_token": token, "token_type": "bearer"}
     raise HTTPException(status_code=400, detail="Invalid credentials")
 
+
 @app.get("/protected")
 def protected_route(user_id: int = Depends(verify_jwt_token)):
     return {"message": f"Hello, user {user_id}"}
+
 
 @app.get("/about_me")
 def get_about_protected(user: int = Depends(verify_jwt_token)):
@@ -70,6 +75,7 @@ def get_about_protected(user: int = Depends(verify_jwt_token)):
 
 class LogMiddleware(BaseHTTPMiddleware):
     """Этот класс позволяет логировать запросы и ответы"""
+
     async def dispatch(self, request: Request, call_next):
         # Логируем запрос
         print(f"Request: {request.method} {request.url}")
@@ -77,6 +83,7 @@ class LogMiddleware(BaseHTTPMiddleware):
         # Логируем ответ
         print(f"Response: {response.status_code}")
         return response
+
 
 # Подключаем маршруты
 app.include_router(task_router.router)
@@ -94,7 +101,7 @@ date_time = get_date()
 @app.get("/")
 async def root(request: Request):
     """Отображаем главную страницу"""
-    return templates.TemplateResponse(name='index.html', context={"request":request, 'date_time': date_time})
+    return templates.TemplateResponse(name='index.html', context={"request": request, 'date_time': date_time})
 
 
 @app.get("/todo")
@@ -102,17 +109,28 @@ async def todo_page(request: Request, db: AsyncSession = Depends(get_db), skip: 
     """Переход на страницу добавления задач и получение всех задач из БД"""
 
     # Подсчитываем количество задач
-    result_count = await db.execute(select(func.count(Task.id)))
+    # result_count = await db.execute(select(func.count(Task.id)))
     # tasks_count = result_count.all() # Получаем количество задач
     # tasks_count = result_count.fetchone()[0]  # Получаем количество задач
     # tasks_count = result_count.fetchall()[0][0]  # Получаем количество задач
-    tasks_count = result_count.scalar() # Получаем количество задач
+    # tasks_count = result_count.scalar()  # Получаем количество задач
 
     # Получаем задачи с учётом пагинации
-    result_tasks = await db.execute(select(Task).offset(skip).limit(limit))
-    tasks = result_tasks.scalars().all()  # Получаем список задач
+    # result_tasks = await db.execute(select(Task).offset(skip).limit(limit))
+    # tasks = result_tasks.scalars().all()  # Получаем список задач
+    # return templates.TemplateResponse('todo.html', {"request": request, "tasks": tasks, "tasks_count": tasks_count})
 
-    return templates.TemplateResponse('todo.html', {"request": request, "tasks": tasks, "tasks_count": tasks_count})
+    # 2 способ получаем данные из моего API
+    tasks_count = len(await get_tasks(db, skip, limit))
+    tasks = await get_tasks(db, skip, limit)  # Получаем список задач
+    return templates.TemplateResponse('todo.html', {"request": request, "tasks": tasks,
+                                                    "tasks_count": tasks_count})
+
+
+# Эндпоинт для отображения страницы создания задачи
+@app.get("/tasks/create", response_class=HTMLResponse)
+async def create_task_page(request: Request):
+    return templates.TemplateResponse("create_task.html", {"request": request})
 
 
 if __name__ == "__main__":
