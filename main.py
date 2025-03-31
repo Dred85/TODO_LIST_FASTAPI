@@ -123,7 +123,7 @@ async def todo_page(request: Request, db: AsyncSession = Depends(get_db), skip: 
     # 2 способ получаем данные из моего API
     tasks_count = len(await get_tasks(db, skip, limit))
     tasks = await get_tasks(db, skip, limit)  # Получаем список задач
-    return templates.TemplateResponse('todo.html', {"request": request, "tasks": tasks,
+    return templates.TemplateResponse(request=request, name='todo.html', context={"tasks": tasks,
                                                     "tasks_count": tasks_count})
 
 
