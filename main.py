@@ -104,7 +104,7 @@ async def root(request: Request):
     return templates.TemplateResponse(name='index.html', context={"request": request, 'date_time': date_time})
 
 
-@app.get("/todo")
+@app.get("/todo", response_class=HTMLResponse)
 async def todo_page(request: Request, db: AsyncSession = Depends(get_db), skip: int = 0, limit: int = 100):
     """Переход на страницу добавления задач и получение всех задач из БД"""
 
@@ -123,8 +123,9 @@ async def todo_page(request: Request, db: AsyncSession = Depends(get_db), skip: 
     # 2 способ получаем данные из моего API
     tasks_count = len(await get_tasks(db, skip, limit))
     tasks = await get_tasks(db, skip, limit)  # Получаем список задач
+
     return templates.TemplateResponse(request=request, name='todo.html', context={"tasks": tasks,
-                                                    "tasks_count": tasks_count})
+                                                                                  "tasks_count": tasks_count})
 
 
 # Эндпоинт для отображения страницы создания задачи
