@@ -1,5 +1,5 @@
 import uvicorn
-from fastapi import FastAPI, Request, Depends, HTTPException
+from fastapi import FastAPI, Request, Depends, HTTPException, Form
 from contextlib import asynccontextmanager
 
 from sqlalchemy import select, func
@@ -18,7 +18,8 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.security import HTTPBearer, OAuth2PasswordBearer, HTTPAuthorizationCredentials
 import jwt
 
-from services.task_service import get_date, get_tasks, get_task
+from schemas.task_schema import TaskCreate
+from services.task_service import get_date, get_tasks, get_task, create_task
 
 
 # Создаем обработчик жизненного цикла приложения
@@ -36,6 +37,35 @@ app = FastAPI(lifespan=lifespan)
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 SECRET_KEY = "mysecretkey"
 security = HTTPBearer()
+
+
+# Показываем страницу с формой
+@app.get("/tasks/create", response_class=HTMLResponse)
+async def create_task_page(request: Request):
+    return templates.TemplateResponse(request=request, name="create_task.html")
+
+# 2️⃣ Обрабатываем отправку формы и создаём задачу
+@app.post("/tasks/create")
+async def create_task_handler(
+    title: str = Form(...),
+    description: str = Form(""),
+    status: str = Form("pending"),
+    importance: int = Form(1),
+    db: AsyncSession = Depends(get_db)
+):
+    task_data = TaskCreate(
+        title=title,
+        description=description,
+        status=status,
+        importance=importance
+    )
+    new_task = Task(**task_data.dict())
+    db.add(new_task)
+    await db.commit()
+    await db.refresh(new_task)
+
+    return RedirectResponse(url=f"/tasks/{new_task.id}", status_code=303)
+
 
 
 # Верификация JWT токена
@@ -128,10 +158,7 @@ async def todo_page(request: Request, db: AsyncSession = Depends(get_db), skip: 
                                                                                   "tasks_count": tasks_count})
 
 
-# Эндпоинт для отображения страницы создания задачи
-@app.get("/tasks/create", response_class=HTMLResponse)
-async def create_task_page(request: Request):
-    return templates.TemplateResponse("create_task.html", {"request": request})
+
 
 
 if __name__ == "__main__":
