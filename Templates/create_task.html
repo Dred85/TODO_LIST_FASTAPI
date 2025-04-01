@@ -24,7 +24,11 @@
     </select>
 
     <label for="importance">Важность:</label>
-    <input type="number" id="importance" name="importance" min="1" max="10">
+    <select id="importance" name="importance" class="form-select">
+        <option value="Важное">Важное</option>
+        <option value="Очень важное">Очень важное</option>
+        <option value="Не важное">Не важное</option>
+    </select>
 
     <button type="submit">Создать задачу</button>
 </form>

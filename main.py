@@ -50,7 +50,7 @@ async def create_task_handler(
     title: str = Form(...),
     description: str = Form(""),
     status: str = Form("pending"),
-    importance: int = Form(1),
+    importance: str = Form("Важное"),
     db: AsyncSession = Depends(get_db)
 ):
     task_data = TaskCreate(
@@ -64,7 +64,7 @@ async def create_task_handler(
     await db.commit()
     await db.refresh(new_task)
 
-    return RedirectResponse(url=f"/tasks/{new_task.id}", status_code=303)
+    return RedirectResponse(url=f"/todo/", status_code=303)
 
 
 
