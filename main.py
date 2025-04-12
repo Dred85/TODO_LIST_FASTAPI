@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import FastAPI, Request, Depends, HTTPException, Form
 from contextlib import asynccontextmanager
 
+from prometheus_fastapi_instrumentator import Instrumentator
 from sqlalchemy import select, func
 from starlette.responses import HTMLResponse, RedirectResponse
 
@@ -32,6 +33,9 @@ async def lifespan(app: FastAPI):
 
 # Создаем FastAPI-приложение с переданным lifespan
 app = FastAPI(lifespan=lifespan)
+# Подключение метрик 
+Instrumentator().instrument(app).expose(app)
+
 
 # Создаем объект схемы OAuth2 для получения токена
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
@@ -65,6 +69,7 @@ async def create_task_handler(
     await db.refresh(new_task)
 
     return RedirectResponse(url=f"/todo/", status_code=303)
+
 
 
 
@@ -156,8 +161,6 @@ async def todo_page(request: Request, db: AsyncSession = Depends(get_db), skip: 
 
     return templates.TemplateResponse(request=request, name='todo.html', context={"tasks": tasks,
                                                                                   "tasks_count": tasks_count})
-
-
 
 
 
