@@ -13,7 +13,9 @@ services:
     volumes:
       - .:/app
       - ./logs:/var/log/todo_app
-    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    command: >
+      sh -c "sleep 10 && uvicorn main:app --host 0.0.0.0 --port 8000"
+    restart: on-failure
 
   db:
     image: postgres:16-alpine
@@ -27,7 +29,7 @@ services:
       - ./init-scripts:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 5
 

@@ -122,8 +122,8 @@ async def edit_task_handler(
     task_id: int,
     title: str = Form(...),
     description: str = Form(""),
-    status: str = Form("pending"),
-    importance: str = Form("Важное"),
+    status: str = Form("NEW"),
+    importance: str = Form("HIGH"),
     db: AsyncSession = Depends(get_db)
 ):
     """Обработка формы редактирования"""
@@ -140,7 +140,7 @@ async def edit_task_handler(
             raise HTTPException(status_code=404, detail="Task not found")
         
         logger.info(f"Updated task: {updated_task.title}")
-        return RedirectResponse(url="/todo", status_code=303)
+        return RedirectResponse(url=f"/tasks/{task_id}", status_code=303)
     except Exception as e:
         logger.error(f"Error updating task: {str(e)}")
         return templates.TemplateResponse(
@@ -193,6 +193,42 @@ async def view_task(request: Request, task_id: int, db: AsyncSession = Depends(g
         )
         error_response.headers["Content-Type"] = "text/html; charset=utf-8"
         return error_response
+
+@app.post("/tasks/{task_id}")
+async def update_task_handler(
+    request: Request,
+    task_id: int,
+    title: str = Form(...),
+    description: str = Form(""),
+    status: str = Form("pending"),
+    importance: str = Form("Важное"),
+    db: AsyncSession = Depends(get_db)
+):
+    """Обработка формы обновления задачи"""
+    try:
+        task_update = TaskUpdate(
+            title=title,
+            description=description,
+            status=status,
+            importance=importance
+        )
+        
+        updated_task = await update_task(db, task_id, task_update)
+        if updated_task is None:
+            raise HTTPException(status_code=404, detail="Task not found")
+        
+        logger.info(f"Updated task: {updated_task.title}")
+        return RedirectResponse(url="/todo", status_code=303)
+    except Exception as e:
+        logger.error(f"Error updating task: {str(e)}")
+        return templates.TemplateResponse(
+            "error.html",
+            {
+                "request": request,
+                "error_message": f"Error updating task: {str(e)}"
+            },
+            status_code=500
+        )
 
 @app.get("/api/tasks/{task_id}")
 async def get_task_api(task_id: int, db: AsyncSession = Depends(get_db)):

@@ -11,14 +11,14 @@ class Base(DeclarativeBase):
 
 
 class TaskStatus(str, enum.Enum):
-    pending = "pending"
-    in_progress = "in_progress"
-    completed = "completed"
+    NEW = "NEW"
+    IN_PROGRESS = "IN_PROGRESS"
+    COMPLETED = "COMPLETED"
 
 class TaskImportance(str, enum.Enum):
-    important = "Важное"
-    very_important = "Очень важное"
-    not_important= "Не важное"
+    HIGH = "HIGH"
+    MEDIUM = "MEDIUM"
+    LOW = "LOW"
 
 
 class Task(Base):
@@ -27,8 +27,8 @@ class Task(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
     description = Column(String)
-    status = Column(String, default="pending")
-    importance = Column(String, default="Важное")
+    status = Column(String, default="NEW")
+    importance = Column(String, default="HIGH")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     def __str__(self):
