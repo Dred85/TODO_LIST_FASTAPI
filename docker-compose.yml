@@ -24,8 +24,9 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -52,13 +53,21 @@ services:
   loki:
     image: grafana/loki:2.9.2
     container_name: loki
+    user: "10001"
     ports:
       - "3100:3100"
+    volumes:
+      - ./local-config.yaml:/etc/loki/local-config.yaml
+      - ./loki-data/chunks:/loki/chunks
+      - ./loki-data/index:/loki/index
+      - ./loki-data/wal:/wal
     command: -config.file=/etc/loki/local-config.yaml
 
   promtail:
     image: grafana/promtail
     container_name: promtail
+    ports:
+      - "9080:9080"
     volumes:
       - ./promtail-config.yml:/etc/promtail/promtail-config.yml
       - ./logs:/var/log/todo_app
