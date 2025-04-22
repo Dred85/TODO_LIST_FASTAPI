@@ -11,17 +11,17 @@ class TaskStatus(str, Enum):
     completed = "completed"
 
 class TaskImportance(str, Enum):
-    important = "Важное"
-    very_important = "Очень важное"
-    not_important= "Не важное"
+    high = "Важное"
+    medium = "Среднее"
+    low = "Низкое"
 
 
 class TaskBase(BaseModel):
     """Pydantic-схема или Класс схема для валидации данных"""
     title: str
-    description: str
-    status: TaskStatus = TaskStatus.pending
-    importance: TaskImportance = None
+    description: str | None = None
+    status: str = "pending"
+    importance: str = "Важное"
 
 
 class TaskCreate(TaskBase):
@@ -29,7 +29,10 @@ class TaskCreate(TaskBase):
 
 
 class TaskUpdate(TaskBase):
-    pass
+    title: str | None = None
+    description: str | None = None
+    status: str | None = None
+    importance: str | None = None
 
 
 class TaskPut(TaskBase):

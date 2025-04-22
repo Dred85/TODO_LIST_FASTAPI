@@ -15,8 +15,7 @@ class Model(DeclarativeBase):
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
-# DATABASE_URL = os.getenv("DATABASE_URL")
-DATABASE_URL="postgresql+asyncpg://postgres:qwertyuiop123#@localhost/todo_fastapi"
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Создаем асинхронный движок
 async_engine = create_async_engine(DATABASE_URL, echo=True)

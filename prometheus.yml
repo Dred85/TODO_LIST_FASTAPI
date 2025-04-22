@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'todo_fastapi_app'
+    static_configs:
+      - targets: ['todo_app:8000']
+  - job_name: 'promtail'
+    static_configs:
+      - targets: ['promtail:9080']

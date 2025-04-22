@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Enum, DateTime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql import func
 import enum
+from db.database import Base
 
 
 # Base = declarative_base()
@@ -23,9 +24,22 @@ class TaskImportance(str, enum.Enum):
 class Task(Base):
     __tablename__ = "tasks"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str] = mapped_column(nullable=False)
-    description: Mapped[str] = mapped_column(nullable=False)
-    status: Mapped[TaskStatus] = mapped_column(Enum(TaskStatus), default=TaskStatus.pending, nullable=True)
-    importance: Mapped[TaskImportance] = mapped_column(Enum(TaskImportance), default=TaskImportance.important, nullable=True)
-    created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), nullable=False)
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, index=True)
+    description = Column(String)
+    status = Column(String, default="pending")
+    importance = Column(String, default="Важное")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    def __str__(self):
+        return f"Task(id={self.id}, title={self.title})"
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "status": self.status,
+            "importance": self.importance,
+            "created_at": self.created_at
+        }

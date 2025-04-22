@@ -6,6 +6,9 @@ import time
 from db.models import Task
 from schemas.task_schema import TaskCreate, TaskUpdate, TaskInDB
 from fastapi.responses import StreamingResponse, FileResponse
+import logging
+
+logger = logging.getLogger("todo_app")
 
 
 def transfer_file(filename: str):
@@ -59,17 +62,38 @@ async def get_tasks(db: AsyncSession, skip: int = 0, limit: int = 100) -> list[T
 
 
 async def update_task(db: AsyncSession, task_id: int, task_update: TaskUpdate) -> TaskInDB:
-    result = await db.execute(select(Task).filter(Task.id == task_id))
-    task = result.scalars().first()
-    if task:
+    """Обновление задачи"""
+    try:
+        logger.info(f"Attempting to update task {task_id} with data: {task_update}")
+        result = await db.execute(select(Task).filter(Task.id == task_id))
+        task = result.scalars().first()
+        
+        if task is None:
+            logger.error(f"Task {task_id} not found")
+            return None
+            
+        # Сохраняем старые значения для логирования
+        old_values = {
+            "title": task.title,
+            "description": task.description,
+            "status": task.status,
+            "importance": task.importance
+        }
+        
+        # Обновляем значения
         task.title = task_update.title
         task.description = task_update.description
         task.status = task_update.status
         task.importance = task_update.importance
+        
         await db.commit()
         await db.refresh(task)
+        
+        logger.info(f"Successfully updated task {task_id}. Old values: {old_values}, New values: {task_update}")
         return task
-    return None
+    except Exception as e:
+        logger.error(f"Error updating task {task_id}: {str(e)}")
+        raise
 
 
 async def patch_task(db: AsyncSession, task_id: int, task_update: TaskUpdate) -> TaskInDB | None:
