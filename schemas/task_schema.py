@@ -6,22 +6,22 @@ from enum import Enum
 
 
 class TaskStatus(str, Enum):
-    pending = "pending"
-    in_progress = "in_progress"
-    completed = "completed"
+    NEW = "NEW"
+    IN_PROGRESS = "IN_PROGRESS"
+    COMPLETED = "COMPLETED"
 
 class TaskImportance(str, Enum):
-    high = "Важное"
-    medium = "Среднее"
-    low = "Низкое"
+    HIGH = "HIGH"
+    MEDIUM = "MEDIUM"
+    LOW = "LOW"
 
 
 class TaskBase(BaseModel):
     """Pydantic-схема или Класс схема для валидации данных"""
     title: str
     description: str | None = None
-    status: str = "pending"
-    importance: str = "Важное"
+    status: str = "NEW"
+    importance: str = "HIGH"
 
 
 class TaskCreate(TaskBase):
